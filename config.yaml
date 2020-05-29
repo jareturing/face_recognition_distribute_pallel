@@ -1,0 +1,73 @@
+# yaml
+include_top : False # drop the final layer
+num_classes : 144756
+backbone : networks.resnet_face.Backbone # specify your own network
+backbone_kwargs :
+  drop_ratio : 0.4
+  mode : ir
+embedding_dim : 256  # need to be consistent with backbone network
+
+
+optimizer : 'sgd' # [adam,rmsp,sgd], default optim is sgd
+use_gpu : True  # use GPU or not
+gpu_ids : '5,6,7'
+batch_size : 96
+val_interval : 1
+
+epoch : 20
+start_epoch : 0 # specify which epoch to start, ignored in pretrained mode
+
+backbone_hypers :
+  lr : 0.005  # initial learning rate
+  weight_decay : 0.005
+  momentum : 0.9
+  gamma :  0.9 #0.10526  # 0.9
+rigid_lr : False
+lr_decay :
+  "11" : [0.0001,0.0001]
+  "20" : [0.00007,0.00007]
+  "30" : [0.00005,0.00005]
+  "40" : [0.00002,0.00002]
+milestones : [2,4,6,8] #[1,3,5,7,12]
+arccos_hypers :
+  lr : 0.1  # initial learning rate 0.01 0.05
+  weight_decay : 0.005
+  momentum : 0.9
+  gamma :  0.10526
+
+train_data : '/raid_data/face_ms1s/datasets_miracle_v2_part_'
+# dataset_loader : data_loaders.data_loader.TF_Data_Loader
+dataset_loader : data_loaders.data_loader.TF_Data_Loader
+train_data_kwargs:
+  p : 0.9
+  identity_size : 3
+  img_size : 112
+  crop_size : 100
+  rot_angle : 10
+  num_workers : 8
+  pin_memory : True
+
+
+validate : True
+valdata_folder : "/ssd_data/face_ms1s"
+
+pretrained : True
+board_loss_freq : 100  # every epoch to do N times
+evaluate_freq : 10   # every epoch to do N times
+save_freq :  5       # every epoch to do N times
+visualize : True # visualize or not
+vis_kwargs:
+  hm_size : [18,15] # fig size of a heatmap
+  emb_delay : 60  # amplifier behind print freq
+model_weight_path : 'mxnet_model/resnet50_mxnet_resize.pth'
+save_path : "work_space" # work path
+################################################
+use_fp16: False
+use_tfrecord: True
+
+
+
+
+
+
+
