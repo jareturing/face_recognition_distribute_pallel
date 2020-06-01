@@ -35,9 +35,10 @@ arccos_hypers :
   momentum : 0.9
   gamma :  0.10526
 
-train_data : '/raid_data/face_ms1s/datasets_miracle_v2_part_'
+# train_data : '/raid_data/face_ms1s/datasets_miracle_v2_part_' #use hdf5 file
 # dataset_loader : data_loaders.data_loader.TF_Data_Loader
-dataset_loader : data_loaders.data_loader.TF_Data_Loader
+dataset_loader : data_loaders.data_loader.Data_Loader
+train_data : '/ssd_data/face_ms1s/images'
 train_data_kwargs:
   p : 0.9
   identity_size : 3
