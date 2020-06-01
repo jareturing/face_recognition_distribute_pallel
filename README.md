@@ -9,6 +9,10 @@ In this project ,we use colPallelLinear and mpu vocab  pallel cross entropy to b
 1 To get training data,you can download from web link in dbfile.txt
 2 we have make a scripy to convert images in folders to tfrecord files,which can help speed up data read in HDD disk.the scripy is data/create_tfrecord.py. Also if you have fast SSD disk, ignore this step. rebuild the dataloader in solver_ddp.py.
 3 The overall training protocol has been written in file solver_ddp.py, while the configurations are set in file config.yaml, using shell run_face_main.sh to train a model.Make sure set right host IP for model pallel env.
+In config.yaml,
+set train_data for face_ms1s/images floder,
+set aldata_folder for valid data folder(lfw、agedb)
+download from link in dbfile.txt
 4 After training ,you can use validation/vertification_owndata.py to get vertification performance of self-models on agedb_30 lfw and cfp_fp.(the validation has provided in dbfile.txt) 
 5 Experiment shows a consistent result with InsightFace, some more networks will be added!
 
