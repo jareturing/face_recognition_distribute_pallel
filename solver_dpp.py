@@ -205,9 +205,14 @@ class Solver(nn.Module):
 
             # for i,(imgs,labels) in enumerate(self.train_loader.sample_loader):
             fps_start= time.time()
-            for data in tqdm(self.train_loader.sample_loader):
-                imgs = data["image"].cuda(self.gpu,non_blocking=True)
-                labels = torch.squeeze(data["label"],dim=1).cuda(self.gpu,non_blocking=True).long()
+            ###########################if use tfrecord file as data####################################
+            #for data in tqdm(self.train_loader.sample_loader):
+            #    imgs = data["image"].cuda(self.gpu,non_blocking=True)
+            #    labels = torch.squeeze(data["label"],dim=1).cuda(self.gpu,non_blocking=True).long()
+            ################################use imgs from Folders##########################  
+            for images,label in tqdm(self.train_loader.sample_loader):
+                imgs = images.cuda(self.gpu,non_blocking=True)
+                labels =label.cuda(self.gpu,non_blocking=True).long()
                 embeddings = self.net(imgs)
                 logist, gather_label = self.header(embeddings, labels)
                 mpu_loss = mpu.vocab_parallel_cross_entropy(logist.contiguous().float(),
