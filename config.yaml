@@ -1,6 +1,6 @@
 # yaml
 include_top : False # drop the final layer
-num_classes : 144756
+num_classes : 85744
 backbone : networks.resnet_face.Backbone # specify your own network
 backbone_kwargs :
   drop_ratio : 0.4
@@ -14,7 +14,7 @@ gpu_ids : '5,6,7'
 batch_size : 96
 val_interval : 1
 
-epoch : 20
+epoch : 40
 start_epoch : 0 # specify which epoch to start, ignored in pretrained mode
 
 backbone_hypers :
