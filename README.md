@@ -13,6 +13,7 @@ In config.yaml,
 set train_data for face_ms1s/images floder,
 set aldata_folder for valid data folder(lfw、agedb)
 download from link in dbfile.txt
+this project use full GPU in host,we have set defaults gpu to be 8.
 4 After training ,you can use validation/vertification_owndata.py to get vertification performance of self-models on agedb_30 lfw and cfp_fp.(the validation has provided in dbfile.txt) 
 5 Experiment shows a consistent result with InsightFace, some more networks will be added!
 
