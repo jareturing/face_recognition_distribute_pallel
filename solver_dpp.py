@@ -213,6 +213,7 @@ class Solver(nn.Module):
             for images,label in tqdm(self.train_loader.sample_loader):
                 imgs = images.cuda(self.gpu,non_blocking=True)
                 labels =label.cuda(self.gpu,non_blocking=True).long()
+                ##################################################
                 embeddings = self.net(imgs)
                 logist, gather_label = self.header(embeddings, labels)
                 mpu_loss = mpu.vocab_parallel_cross_entropy(logist.contiguous().float(),
