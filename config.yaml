@@ -10,7 +10,7 @@ embedding_dim : 256  # need to be consistent with backbone network
 
 optimizer : 'sgd' # [adam,rmsp,sgd], default optim is sgd
 use_gpu : True  # use GPU or not
-gpu_ids : '5,6,7'
+# gpu_ids : '5,6,7'
 batch_size : 96
 val_interval : 1
 
@@ -45,7 +45,7 @@ train_data_kwargs:
   img_size : 112
   crop_size : 100
   rot_angle : 10
-  num_workers : 8
+  num_workers : 6
   pin_memory : True
 
 
