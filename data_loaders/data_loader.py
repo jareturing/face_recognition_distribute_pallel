@@ -124,11 +124,13 @@ class Data_Loader():
     def build_dataset(self):
         self.sample_dataset, self.num_calsses = get_train_dataset(self.data_path)
     def build_loader(self):
+        train_sampler=torch.utils.data.distributed.DistributedSampler(self.sample_dataset)
         self.sample_loader = torch.utils.data.DataLoader(dataset=self.sample_dataset,
                                                     batch_size=self.batch_size,
-                                                    shuffle=self.shuffle,
+                                                    shuffle=(train_sampler is None),
                                                     pin_memory=self.pin_memory,
                                                     num_workers=self.num_workers,
+                                                    sampler=train_sampler
                                                     )
 
 
