@@ -1,0 +1,7 @@
+OS类型:linux
+内核信息：Linux localhost.localdomain 3.10.0-693.el7.x86_64 #1 SMP Tue Aug 22 21:09:27 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+Python运行版本：
+Python 3.6.9 (default, Nov  7 2019, 10:44:02) 
+[GCC 8.3.0] on linux
+可参考镜像：
+驱动信息：NVIDIA-SMI 430.50 | Driver Version: 430.50 | CUDA Version: 10.1 
