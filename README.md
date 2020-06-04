@@ -20,3 +20,5 @@ this project use full GPU in host,we have set defaults gpu to be 8.
 # Compatibility
 The code has been tested using Pytorch 1.4.0 under Centos7.4 with python3.6.
  we reommand use docker image horovod/horovod:0.19.3-tf2.1.0-torch-mxnet1.6.0-py3.6-gpu .
+ OS.txt give s information about OS and NVIDIA-driver.
+ reqirements.txt give information about packages.
