@@ -64,7 +64,12 @@ def _split_target_dim(input_,taget_dim=0):
 
     # Split along last dimension.
     world_size = torch.distributed.get_world_size(group=group)
-    #input_list = split_tensor_along_last_dim(input_, world_size)
+    #input_list = split_tensor_along_last_dim(input_, world_size) 
+
+    # need All-reduce to get grad from all  arcface layer pallel  mpu.vocab_parallel_cross_entropy
+    # All-reduce the grad back_up input for all sample.
+    torch.distributed.all_reduce(input_, group=group)
+
     input_list = split_tensor_along_target_dim(input_, world_size,taget_dim)
 
     # Note: torch.split does not create contiguous tensors by default.
