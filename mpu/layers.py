@@ -400,36 +400,69 @@ class ArcfaceColumnParallelLinear(torch.nn.Module):
             self.output_size_per_partition, 0, init_method,
             stride=stride, return_master_weight=keep_master_weight_for_test)
 
+#     def forward(self, input_embedding,input_labels):
+#         #  gather input  embed feature from all model parallel regaion
+#         input_parallel_embedding=gather_from_model_parallel_region_align_target_dim(input_embedding)# get all input X feature and Y label
+#         input_parallel_labels=gather_from_model_parallel_region_align_target_dim(input_labels)
+#         inputBatch = input_parallel_embedding.size()[0]
+#         # cos_theta = F.linear(F.normalize(input_parallel_embedding),  F.normalize(self.weight), self.bias)
+#         cos_theta = F.linear(input_parallel_embedding, F.normalize(self.weight), self.bias)
+#         cos_theta = cos_theta.clamp(-1, 1)  # for numerical stability
+#         cos_theta_2 = torch.pow(cos_theta, 2)
+#         sin_theta_2 = 1 - cos_theta_2
+#         sin_theta = torch.sqrt(sin_theta_2)
+#         cos_theta_m = (cos_theta * self.cos_m - sin_theta * self.sin_m).to(dtype=cos_theta.dtype)
+#         # this condition for special theta ,make cos_tehta_m math valid
+#         cond_v = cos_theta - self.threshold
+#         cond_mask = cond_v <= 0
+#         keep_val = (cos_theta - self.mm).to(dtype=cos_theta.dtype) # when theta not in [0,pi], use cosface instead
+#         cos_theta_m[cond_mask] = keep_val[cond_mask]
+#         ####################################################################
+#         output_parallel = cos_theta * 1.0  # a little bit hacky way to prevent in_place operation on cos_theta
+#         idx = torch.arange(0, inputBatch, dtype=torch.long)
+#         label_inrange_mask = (self.vocab_start_index <= input_parallel_labels) & (
+#                     input_parallel_labels < self.vocab_end_index)
+#         masked_valid_label = input_parallel_labels.clone() - self.vocab_start_index
+#         row_idx=idx[label_inrange_mask]
+#         valid_label_idx=masked_valid_label[label_inrange_mask]
+#         output_parallel[row_idx, valid_label_idx] = cos_theta_m[row_idx, valid_label_idx]
+#         output_parallel *= self.scalar  # scale up in order to make softmax work, first introduced in normface
+#         if self.gather_output:
+#             # All-gather across the partitions.
+#            output = gather_from_model_parallel_region(output_parallel)
+#         else:
+#             output = output_parallel
+#         return output,input_parallel_labels
     def forward(self, input_embedding,input_labels):
         #  gather input  embed feature from all model parallel regaion
-        input_parallel_embedding=gather_from_model_parallel_region_align_target_dim(input_embedding)# get all input X feature and Y label
-        input_parallel_labels=gather_from_model_parallel_region_align_target_dim(input_labels)
-        inputBatch = input_parallel_embedding.size()[0]
-        # cos_theta = F.linear(F.normalize(input_parallel_embedding),  F.normalize(self.weight), self.bias)
-        cos_theta = F.linear(input_parallel_embedding, F.normalize(self.weight), self.bias)
-        cos_theta = cos_theta.clamp(-1, 1)  # for numerical stability
-        cos_theta_2 = torch.pow(cos_theta, 2)
-        sin_theta_2 = 1 - cos_theta_2
-        sin_theta = torch.sqrt(sin_theta_2)
-        cos_theta_m = (cos_theta * self.cos_m - sin_theta * self.sin_m).to(dtype=cos_theta.dtype)
-        # this condition for special theta ,make cos_tehta_m math valid
-        cond_v = cos_theta - self.threshold
-        cond_mask = cond_v <= 0
-        keep_val = (cos_theta - self.mm).to(dtype=cos_theta.dtype) # when theta not in [0,pi], use cosface instead
-        cos_theta_m[cond_mask] = keep_val[cond_mask]
-        ####################################################################
-        output_parallel = cos_theta * 1.0  # a little bit hacky way to prevent in_place operation on cos_theta
+        input_embedding = gather_from_model_parallel_region_align_target_dim(
+            input_embedding)  # get all input X feature and Y label
+        input_labels = gather_from_model_parallel_region_align_target_dim(input_labels)
+        inputBatch = input_embedding.size()[0]
+
         idx = torch.arange(0, inputBatch, dtype=torch.long)
-        label_inrange_mask = (self.vocab_start_index <= input_parallel_labels) & (
-                    input_parallel_labels < self.vocab_end_index)
-        masked_valid_label = input_parallel_labels.clone() - self.vocab_start_index
-        row_idx=idx[label_inrange_mask]
-        valid_label_idx=masked_valid_label[label_inrange_mask]
-        output_parallel[row_idx, valid_label_idx] = cos_theta_m[row_idx, valid_label_idx]
-        output_parallel *= self.scalar  # scale up in order to make softmax work, first introduced in normface
+        label_inrange_mask = (self.vocab_start_index <= input_labels) & (
+                input_labels < self.vocab_end_index)
+        masked_valid_label = input_labels.clone() - self.vocab_start_index
+        row_idx = idx[label_inrange_mask]
+        valid_label_idx = masked_valid_label[label_inrange_mask]
+        cos_theta = F.linear(input_embedding, F.normalize(self.weight), self.bias)
+
+        cos_theta = cos_theta.clamp(-1, 1)  # for numerical stability
+
+        cos_theta_valid = cos_theta[row_idx, valid_label_idx]
+        cos_theta_m = (cos_theta_valid * self.cos_m - torch.sqrt(1 - torch.pow(cos_theta_valid, 2)) * self.sin_m).to(
+            dtype=cos_theta.dtype)
+        cos_theta_m[cos_theta_valid <= self.threshold] = (
+                    cos_theta_valid[cos_theta_valid <= self.threshold] - self.mm).to(dtype=cos_theta.dtype)
+        ####################################################################
+        cos_theta *= 1.0  # a little bit hacky way to prevent in_place operation on cos_theta
+
+        cos_theta[row_idx, valid_label_idx] = cos_theta_m
+        cos_theta *= self.scalar  # scale up in order to make softmax work, first introduced in normface
         if self.gather_output:
             # All-gather across the partitions.
-           output = gather_from_model_parallel_region(output_parallel)
+            cos_theta = gather_from_model_parallel_region(cos_theta)
         else:
-            output = output_parallel
-        return output,input_parallel_labels
+            cos_theta = cos_theta
+        return cos_theta, input_labels
