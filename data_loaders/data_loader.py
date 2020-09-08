@@ -18,7 +18,7 @@ import pickle as pkl
 from sklearn.preprocessing import LabelEncoder
 import torch.backends.cudnn as cudnn
 sys.path.append("..")
-from data_loader.data_pipe import get_train_dataset
+from data_loaders.data_pipe import get_train_dataset
 from utils import concur_shuffle, get_all_images, generate_list
 import io
 from torch.utils.data import  DataLoader
