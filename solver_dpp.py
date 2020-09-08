@@ -195,7 +195,8 @@ class Solver(nn.Module):
         self.io_fac.logging("START TRAINING!!!")
         for epoch in range(self.start_epoch,self.start_epoch+self.epoch):
             self.net.train()
-            self.optim_fac.lr_step(epoch,self.lr_decay)
+            if epoch !=self.start_epoch:
+                self.optim_fac.lr_step(epoch,self.lr_decay)
             epoch_start = time.time()
             idx=0
             for optim in self.optim_fac.optimizers:
