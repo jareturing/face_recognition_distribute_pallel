@@ -271,11 +271,11 @@ class Solver(nn.Module):
 
     def online_val(self):
         accuracy1, best_threshold, roc_curve_tensor = self.evaluate( self.agedb_30, self.agedb_30_issame)
-        self.__board_val('val/agedb_30', accuracy, best_threshold, roc_curve_tensor)
+        self.__board_val('val/agedb_30', accuracy1, best_threshold, roc_curve_tensor)
         accuracy2, best_threshold, roc_curve_tensor = self.evaluate( self.lfw, self.lfw_issame)
-        self.__board_val('val/lfw', accuracy, best_threshold, roc_curve_tensor)
+        self.__board_val('val/lfw', accuracy2, best_threshold, roc_curve_tensor)
         accuracy3, best_threshold, roc_curve_tensor = self.evaluate(self.cfp_fp, self.cfp_fp_issame)
-        self.__board_val('val/cfp_fp', accuracy, best_threshold, roc_curve_tensor)
+        self.__board_val('val/cfp_fp', accuracy3, best_threshold, roc_curve_tensor)
         #################################################################################################
         #accuracy2, best_threshold, roc_curve_tensor = self.evaluate( self.agedb, self.agedb_issame)
         #self.__board_val('val/agedb', accuracy2, best_threshold, roc_curve_tensor)
