@@ -153,8 +153,7 @@ class Solver(nn.Module):
         print("loader eval data ...")
         self.agedb_30, self.cfp_fp, self.lfw, self.agedb_30_issame, self.cfp_fp_issame, self.lfw_issame = get_val_data(
             self.valdata_folder)
-        #self.agedb, self.shujutang, self.company, self.agedb_issame, self.shujutang_issame, self.company_issame ,self.jiankong, self.jiankong_issame= get_val_data_own(
-        #    self.valdata_folder)
+      
     def save_state(self,  accuracy, model_only=True,amp_model=False,extra=None):
         checkpoint = None
         torch.save(
@@ -277,15 +276,7 @@ class Solver(nn.Module):
         self.__board_val('val/lfw', accuracy2, best_threshold, roc_curve_tensor)
         accuracy3, best_threshold, roc_curve_tensor = self.evaluate(self.cfp_fp, self.cfp_fp_issame)
         self.__board_val('val/cfp_fp', accuracy3, best_threshold, roc_curve_tensor)
-        #################################################################################################
-        #accuracy2, best_threshold, roc_curve_tensor = self.evaluate( self.agedb, self.agedb_issame)
-        #self.__board_val('val/agedb', accuracy2, best_threshold, roc_curve_tensor)
-        #accuracy3, best_threshold, roc_curve_tensor = self.evaluate( self.shujutang, self.shujutang_issame)
-        #self.__board_val('val/shujutang', accuracy3, best_threshold, roc_curve_tensor)
-        #accuracy4, best_threshold, roc_curve_tensor = self.evaluate( self.company, self.company_issame)
-        #self.__board_val('val/company', accuracy4, best_threshold, roc_curve_tensor)
-        #accuracy5, best_threshold, roc_curve_tensor = self.evaluate(self.jiankong, self.jiankong_issame)
-        #self.__board_val('val/jiangkong', accuracy5, best_threshold, roc_curve_tensor)
+      
         self.company_accuracy=accuracy3
         #pass # Online validation is to be added !
     def __board_val(self, db_name, accuracy, best_threshold, roc_curve_tensor):
